@@ -42,6 +42,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true // viewbinding bunu eklemeden kullanılmıyo
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -73,15 +74,15 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     dependencies {
-        // Room (veritabanı)
+        // Room veritabanı
         implementation("androidx.room:room-runtime:2.6.1")
         kapt("androidx.room:room-compiler:2.6.1")
 
-        // Room + Kotlin Coroutines desteği (önerilir)
+        implementation ("androidx.recyclerview:recyclerview:1.3.1")
+
         implementation("androidx.room:room-ktx:2.6.1")
         implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
-        // Diğer kütüphaneler...
     }
 
 

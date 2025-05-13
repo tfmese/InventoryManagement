@@ -7,46 +7,67 @@
 
     <EditText
         android:id="@+id/etName"
+        android:background="@drawable/bg_rounded_corner_filled_gray"
         android:hint="Ürün Adı"
+        android:paddingLeft="10dp"
+        android:layout_marginBottom="10dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="35dp" />
 
     <EditText
         android:id="@+id/etDescription"
+        android:layout_marginBottom="10dp"
+        android:paddingLeft="10dp"
+        android:background="@drawable/bg_rounded_corner_filled_gray"
         android:hint="Açıklama"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="35dp" />
 
     <EditText
         android:id="@+id/etStock"
+        android:background="@drawable/bg_rounded_corner_filled_gray"
+        android:layout_marginBottom="10dp"
+        android:paddingLeft="10dp"
         android:hint="Stok"
         android:inputType="number"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="35dp" />
 
     <EditText
         android:id="@+id/etPrice"
+        android:background="@drawable/bg_rounded_corner_filled_gray"
+        android:layout_marginBottom="10dp"
+        android:paddingLeft="10dp"
         android:hint="Fiyat"
         android:inputType="numberDecimal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="35dp" />
 
     <EditText
         android:id="@+id/etCategoryId"
+        android:background="@drawable/bg_rounded_corner_filled_gray"
+        android:layout_marginBottom="10dp"
+        android:paddingLeft="10dp"
         android:hint="Kategori ID"
         android:inputType="number"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="35dp" />
 
     <EditText
         android:id="@+id/etSupplierId"
+        android:background="@drawable/bg_rounded_corner_filled_gray"
+        android:paddingLeft="10dp"
         android:hint="Tedarikçi ID"
         android:inputType="number"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="35dp" />
 
     <Button
         android:id="@+id/btnAdd"
+        android:background="@drawable/bg_rounded_corner_filled_gray"
+        android:paddingLeft="10dp"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/black"
         android:text="Ekle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -56,6 +77,9 @@
         android:id="@+id/productRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:layout_marginTop="10dp"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp" />
 
 </LinearLayout>

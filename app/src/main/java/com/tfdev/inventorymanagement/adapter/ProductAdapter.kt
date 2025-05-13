@@ -1,4 +1,4 @@
-package com.tfdev.inventorymanagement.data
+package com.tfdev.inventorymanagement.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -7,7 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.tfdev.inventorymanagement.R
+import com.tfdev.inventorymanagement.data.Product
 
 class ProductAdapter : ListAdapter<Product, ProductAdapter.ProductViewHolder>(
     object : DiffUtil.ItemCallback<Product>() {
