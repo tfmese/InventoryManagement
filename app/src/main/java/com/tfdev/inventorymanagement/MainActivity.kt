@@ -1,5 +1,6 @@
 package com.tfdev.inventorymanagement
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -37,6 +38,11 @@ class MainActivity : AppCompatActivity() {
         binding.btnAdd.setOnClickListener {
             addProduct()
         }
+        binding.btnProductToCustomer.setOnClickListener {
+            val intent = Intent(this, CustomerActivity::class.java)
+            startActivity(intent)
+        }
+
 
         loadProducts()
     }
@@ -70,4 +76,7 @@ class MainActivity : AppCompatActivity() {
             adapter.submitList(products)
         }
     }
+
+
+
 }

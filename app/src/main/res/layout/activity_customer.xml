@@ -19,7 +19,7 @@
             android:layout_weight="1"
             android:layout_marginTop="10dp"
             android:gravity="start|center_vertical"
-            android:text="Ürün"
+            android:text="Müşteri"
             android:textColor="@color/black"
             android:textSize="40sp"
             android:textStyle="bold"/>
@@ -28,20 +28,18 @@
             android:id="@+id/btnProductToCustomer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Müşteri Yönetimi"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:text="Sipariş"
             android:textColor="@color/black"
             android:layout_marginStart="8dp"
             android:paddingLeft="20dp"
             android:drawableLeft="@drawable/ic_arrow_left"
-
             />
     </LinearLayout>
 
     <EditText
-        android:id="@+id/etName"
+        android:id="@+id/etCustomerName"
         android:background="@drawable/bg_rounded_corner_filled_gray"
-        android:hint="Ürün Adı"
+        android:hint="Ad Soyad"
         android:paddingLeft="10dp"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
@@ -50,66 +48,57 @@
 
     <!-- Diğer EditText'ler aynı şekilde kalıyor -->
     <EditText
-        android:id="@+id/etDescription"
+        android:id="@+id/etCustomerAddress"
         android:layout_marginBottom="10dp"
         android:paddingLeft="10dp"
         android:background="@drawable/bg_rounded_corner_filled_gray"
-        android:hint="Açıklama"
+        android:hint="Adres"
         android:layout_width="match_parent"
         android:layout_height="35dp" />
 
     <EditText
-        android:id="@+id/etStock"
+        android:id="@+id/etCustomerCity"
         android:background="@drawable/bg_rounded_corner_filled_gray"
         android:layout_marginBottom="10dp"
         android:paddingLeft="10dp"
-        android:hint="Stok"
-        android:inputType="number"
+        android:hint="Şehir"
+        android:inputType="text"
         android:layout_width="match_parent"
         android:layout_height="35dp" />
 
     <EditText
-        android:id="@+id/etPrice"
+        android:id="@+id/etCustomerPhone"
         android:background="@drawable/bg_rounded_corner_filled_gray"
         android:layout_marginBottom="10dp"
         android:paddingLeft="10dp"
-        android:hint="Fiyat"
+        android:hint="Telefon"
         android:inputType="numberDecimal"
         android:layout_width="match_parent"
         android:layout_height="35dp" />
 
-    <EditText
-        android:id="@+id/etCategoryId"
-        android:background="@drawable/bg_rounded_corner_filled_gray"
-        android:layout_marginBottom="10dp"
-        android:paddingLeft="10dp"
-        android:hint="Kategori ID"
-        android:inputType="number"
-        android:layout_width="match_parent"
-        android:layout_height="35dp" />
 
     <EditText
-        android:id="@+id/etSupplierId"
+        android:id="@+id/etCustomerMail"
         android:background="@drawable/bg_rounded_corner_filled_gray"
         android:paddingLeft="10dp"
-        android:hint="Tedarikçi ID"
-        android:inputType="number"
+        android:hint="E Posta"
+        android:inputType="text"
         android:layout_width="match_parent"
         android:layout_height="35dp" />
 
     <Button
-        android:id="@+id/btnAdd"
+        android:id="@+id/btnAddCustomer"
         android:background="@drawable/bg_rounded_corner_filled_gray"
         android:paddingLeft="10dp"
         android:textColor="@color/white"
         android:backgroundTint="@color/black"
-        android:text="Ekle"
+        android:text="Müşteri Ekle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/productRecyclerView"
+        android:id="@+id/customerRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
