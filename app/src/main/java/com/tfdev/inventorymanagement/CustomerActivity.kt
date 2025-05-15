@@ -1,21 +1,24 @@
 package com.tfdev.inventorymanagement
 
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.tfdev.inventorymanagement.adapter.CustomerAdapter
-import com.tfdev.inventorymanagement.data.AppDatabase
 import com.tfdev.inventorymanagement.data.Customer
-import com.tfdev.inventorymanagement.data.CustomerDao
 import com.tfdev.inventorymanagement.databinding.ActivityCustomerBinding
+import com.tfdev.inventorymanagement.ui.customer.CustomerViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class CustomerActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityCustomerBinding
-    private lateinit var db: AppDatabase
-    private lateinit var customerDao: CustomerDao
+    private val viewModel: CustomerViewModel by viewModels()
     private lateinit var adapter: CustomerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,18 +26,44 @@ class CustomerActivity : AppCompatActivity() {
         binding = ActivityCustomerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        db = AppDatabase.getDatabase(this)
-        customerDao = db.customerDao()
+        setupRecyclerView()
+        setupClickListeners()
+        observeViewModel()
+    }
 
+    private fun setupRecyclerView() {
         adapter = CustomerAdapter()
         binding.customerRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.customerRecyclerView.adapter = adapter
+    }
 
+    private fun setupClickListeners() {
         binding.btnAddCustomer.setOnClickListener {
             addCustomer()
         }
+    }
 
-        loadCustomers()
+    private fun observeViewModel() {
+        lifecycleScope.launch {
+            viewModel.uiState.collect { state ->
+                when (state) {
+                    is CustomerViewModel.UiState.Loading -> {
+                        binding.progressBar.isVisible = true
+                        binding.customerRecyclerView.isVisible = false
+                    }
+                    is CustomerViewModel.UiState.Success -> {
+                        binding.progressBar.isVisible = false
+                        binding.customerRecyclerView.isVisible = true
+                        adapter.submitList(state.customers)
+                    }
+                    is CustomerViewModel.UiState.Error -> {
+                        binding.progressBar.isVisible = false
+                        binding.customerRecyclerView.isVisible = true
+                        Snackbar.make(binding.root, state.message, Snackbar.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
     }
 
     private fun addCustomer() {
@@ -52,18 +81,8 @@ class CustomerActivity : AppCompatActivity() {
             city = city
         )
 
-        lifecycleScope.launch {
-            customerDao.insert(customer)
-            loadCustomers()
-            clearInputs()
-        }
-    }
-
-    private fun loadCustomers() {
-        lifecycleScope.launch {
-            val customers = customerDao.getAll()
-            adapter.submitList(customers)
-        }
+        viewModel.addCustomer(customer)
+        clearInputs()
     }
 
     private fun clearInputs() {

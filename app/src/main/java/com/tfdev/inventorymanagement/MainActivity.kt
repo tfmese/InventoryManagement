@@ -2,81 +2,119 @@ package com.tfdev.inventorymanagement
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.tfdev.inventorymanagement.data.AppDatabase
-import com.tfdev.inventorymanagement.data.Product
-import com.tfdev.inventorymanagement.adapter.ProductAdapter
-import com.tfdev.inventorymanagement.data.ProductDao
+import com.google.android.material.snackbar.Snackbar
 import com.tfdev.inventorymanagement.databinding.ActivityMainBinding
+import com.tfdev.inventorymanagement.ui.product.ProductActivity
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var db: AppDatabase
-    private lateinit var productDao: ProductDao
-    private lateinit var adapter: ProductAdapter
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        db = AppDatabase.getDatabase(this)
-        productDao = db.productDao()
-
-        adapter = ProductAdapter()
-        binding.productRecyclerView.layoutManager = LinearLayoutManager(this)
-        binding.productRecyclerView.adapter = adapter
-
-        binding.btnAdd.setOnClickListener {
-            addProduct()
-        }
-        binding.btnProductToCustomer.setOnClickListener {
-            val intent = Intent(this, CustomerActivity::class.java)
-            startActivity(intent)
-        }
-
-
-        loadProducts()
+        setSupportActionBar(binding.toolbar)
+        setupSwipeRefresh()
+        setupClickListeners()
+        observeViewModel()
     }
 
-    private fun addProduct() {
-        val name = binding.etName.text.toString()
-        val desc = binding.etDescription.text.toString()
-        val stock = binding.etStock.text.toString().toIntOrNull() ?: 0
-        val price = binding.etPrice.text.toString().toDoubleOrNull() ?: 0.0
-        val catId = binding.etCategoryId.text.toString().toIntOrNull() ?: 0
-        val supId = binding.etSupplierId.text.toString().toIntOrNull() ?: 0
+    private fun setupClickListeners() {
+        binding.cardProducts.setOnClickListener {
+            startActivity(Intent(this, ProductActivity::class.java))
+        }
 
-        val newProduct = Product(
-            name = name,
-            description = desc,
-            stock = stock,
-            price = price,
-            categoryId = catId,
-            supplierId = supId
-        )
+        binding.cardCustomers.setOnClickListener {
+            startActivity(Intent(this, CustomerActivity::class.java))
+        }
 
+        binding.cardOrders.setOnClickListener {
+            // TODO: Implement OrderActivity
+            showNotImplementedMessage()
+        }
+
+        binding.cardWarehouses.setOnClickListener {
+            // TODO: Implement WarehouseActivity
+            showNotImplementedMessage()
+        }
+
+        binding.cardCategories.setOnClickListener {
+            // TODO: Implement CategoryActivity
+            showNotImplementedMessage()
+        }
+
+        binding.cardSuppliers.setOnClickListener {
+            // TODO: Implement SupplierActivity
+            showNotImplementedMessage()
+        }
+
+        binding.cardShipments.setOnClickListener {
+            // TODO: Implement ShipmentActivity
+            showNotImplementedMessage()
+        }
+
+        binding.cardInventory.setOnClickListener {
+            // TODO: Implement InventoryActivity
+            showNotImplementedMessage()
+        }
+    }
+
+    private fun showNotImplementedMessage() {
+        Snackbar.make(binding.root, "Bu özellik henüz uygulanmadı", Snackbar.LENGTH_SHORT).show()
+    }
+
+    private fun setupSwipeRefresh() {
+        binding.swipeRefresh.setOnRefreshListener {
+            viewModel.refreshData()
+        }
+    }
+
+    private fun observeViewModel() {
+        // UI State'i gözlemle
         lifecycleScope.launch {
-            productDao.insert(newProduct)
-            loadProducts()
+            viewModel.uiState.collectLatest { state ->
+                when (state) {
+                    is MainViewModel.UiState.Loading -> {
+                        binding.progressBar.isVisible = true
+                        binding.contentLayout.isVisible = false
+                    }
+                    is MainViewModel.UiState.Success -> {
+                        binding.progressBar.isVisible = false
+                        binding.contentLayout.isVisible = true
+                        binding.swipeRefresh.isRefreshing = false
+                    }
+                    is MainViewModel.UiState.Error -> {
+                        binding.progressBar.isVisible = false
+                        binding.contentLayout.isVisible = true
+                        binding.swipeRefresh.isRefreshing = false
+                        Snackbar.make(binding.root, state.message, Snackbar.LENGTH_LONG).show()
+                    }
+                }
+            }
         }
-    }
 
-    private fun loadProducts() {
+        // Dashboard istatistiklerini gözlemle
         lifecycleScope.launch {
-            val products = productDao.getAll()
-            adapter.submitList(products)
+            viewModel.dashboardStats.collectLatest { stats ->
+                stats?.let {
+                    binding.tvProductCount.text = it.totalProducts.toString()
+                    binding.tvCustomerCount.text = it.totalCustomers.toString()
+                    binding.tvOrderCount.text = it.totalOrders.toString()
+                    binding.tvWarehouseCount.text = it.totalWarehouses.toString()
+                }
+            }
         }
     }
-
-
-
 }

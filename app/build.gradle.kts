@@ -1,26 +1,27 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
     id("kotlin-kapt")
-    }
-
-
-
+    id("kotlin-parcelize")
+}
 
 android {
     namespace = "com.tfdev.inventorymanagement"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.tfdev.inventorymanagement"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        vectorDrawables {
-            useSupportLibrary = true
+
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
         }
     }
 
@@ -34,18 +35,15 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     buildFeatures {
-        compose = true
-        viewBinding = true // viewbinding bunu eklemeden kullanılmıyo
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        viewBinding = true
+        buildConfig = true
     }
     packaging {
         resources {
@@ -55,35 +53,53 @@ android {
 }
 
 dependencies {
+    val roomVersion = "2.6.1"
+    val lifecycleVersion = "2.7.0"
+    val coroutinesVersion = "1.7.3"
+    val hiltVersion = "2.50"
+    val navVersion = "2.7.7"
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.recyclerview)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    debugImplementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
-    dependencies {
-        // Room veritabanı
-        implementation("androidx.room:room-runtime:2.6.1")
-        kapt("androidx.room:room-compiler:2.6.1")
+    // Android Core
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.activity:activity-ktx:1.8.2")
+    implementation("androidx.fragment:fragment-ktx:1.6.2")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
-        implementation ("androidx.recyclerview:recyclerview:1.3.1")
+    // Material Design
+    implementation("com.google.android.material:material:1.11.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.gridlayout:gridlayout:1.0.0")
 
-        implementation("androidx.room:room-ktx:2.6.1")
-        implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    // Room
+    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+    ksp("androidx.room:room-compiler:$roomVersion")
 
-    }
+    // Lifecycle
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion")
 
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion")
 
+    // Navigation
+    implementation("androidx.navigation:navigation-fragment-ktx:$navVersion")
+    implementation("androidx.navigation:navigation-ui-ktx:$navVersion")
+
+    // Hilt
+    implementation("com.google.dagger:hilt-android:$hiltVersion")
+    ksp("com.google.dagger:hilt-android-compiler:$hiltVersion")
+    implementation("androidx.hilt:hilt-navigation-fragment:1.1.0")
+
+    // Timber for logging
+    implementation("com.jakewharton.timber:timber:5.0.1")
+
+    // Testing
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.mockito:mockito-core:5.10.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 }
