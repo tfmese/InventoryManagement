@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.tfdev.inventorymanagement.data.Product
+import com.tfdev.inventorymanagement.data.entity.Product
 import com.tfdev.inventorymanagement.databinding.ItemProductBinding
 
 class ProductAdapter(

@@ -1,9 +1,13 @@
-package com.tfdev.inventorymanagement.data
+package com.tfdev.inventorymanagement.data.entity
 
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 @Entity(
     tableName = "order_details",
     foreignKeys = [
@@ -19,6 +23,10 @@ import androidx.room.PrimaryKey
             childColumns = ["productId"],
             onDelete = ForeignKey.CASCADE
         )
+    ],
+    indices = [
+        Index(value = ["orderId"]),
+        Index(value = ["productId"])
     ]
 )
 data class OrderDetails(
@@ -28,4 +36,4 @@ data class OrderDetails(
     val productId: Int,
     val quantity: Int,
     val unitPrice: Double
-) 
+) : Parcelable 

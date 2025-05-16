@@ -7,11 +7,11 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.tfdev.inventorymanagement.data.Product
-import com.tfdev.inventorymanagement.data.ProductDetails
+import com.tfdev.inventorymanagement.data.entity.Product
+import com.tfdev.inventorymanagement.data.entity.ProductDetails
 import com.tfdev.inventorymanagement.databinding.FragmentProductDetailBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -22,9 +22,7 @@ class ProductDetailFragment : Fragment() {
 
     private var _binding: FragmentProductDetailBinding? = null
     private val binding get() = _binding!!
-
-    private val viewModel: ProductViewModel by viewModels()
-    private lateinit var transactionAdapter: TransactionAdapter
+    private val viewModel: ProductViewModel by activityViewModels()
     private var productId: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +45,6 @@ class ProductDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupToolbar()
-        setupRecyclerView()
         setupFab()
         setupFragmentResultListener()
         loadProductDetails()
@@ -57,11 +54,6 @@ class ProductDetailFragment : Fragment() {
         binding.toolbar.setNavigationOnClickListener {
             findNavController().navigateUp()
         }
-    }
-
-    private fun setupRecyclerView() {
-        transactionAdapter = TransactionAdapter()
-        binding.rvTransactions.adapter = transactionAdapter
     }
 
     private fun setupFab() {
@@ -87,8 +79,19 @@ class ProductDetailFragment : Fragment() {
 
     private fun loadProductDetails() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.getProductDetails(productId).collectLatest { details ->
-                updateUI(details)
+            viewModel.getProductDetails(productId)
+            viewModel.uiState.collectLatest { state ->
+                when (state) {
+                    is ProductViewModel.UiState.ProductDetailsSuccess -> {
+                        updateUI(state.productDetails)
+                    }
+                    is ProductViewModel.UiState.Error -> {
+                        // Hata durumunu işle
+                    }
+                    else -> {
+                        // Diğer durumları işle
+                    }
+                }
             }
         }
     }
@@ -99,12 +102,8 @@ class ProductDetailFragment : Fragment() {
             tvProductDescription.text = details.product.description
             tvProductPrice.text = "₺${String.format("%.2f", details.product.price)}"
             tvTotalStock.text = "Toplam Stok: ${details.product.stock}"
-
-            val warehouseStockText = details.warehouseStocks
-                .joinToString("\n") { "${it.warehouseName}: ${it.stockQuantity}" }
-            tvWarehouseStock.text = warehouseStockText
-
-            transactionAdapter.submitList(details.transactions)
+            tvCategory.text = "Kategori: ${details.category.name}"
+            tvSupplier.text = "Tedarikçi: ${details.supplier.name}"
         }
     }
 

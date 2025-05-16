@@ -1,29 +1,28 @@
 package com.tfdev.inventorymanagement.data.dao
 
-import androidx.room.*
-import com.tfdev.inventorymanagement.data.Supplier
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Update
+import com.tfdev.inventorymanagement.data.entity.Supplier
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SupplierDao {
-    @Insert
-    suspend fun insert(supplier: Supplier)
-
-    @Update
-    suspend fun update(supplier: Supplier)
-
-    @Delete
-    suspend fun delete(supplier: Supplier)
-
     @Query("SELECT * FROM suppliers")
     fun getAllSuppliers(): Flow<List<Supplier>>
 
-    @Query("SELECT * FROM suppliers WHERE supplierId = :id")
-    suspend fun getSupplierById(id: Int): Supplier?
+    @Query("SELECT * FROM suppliers WHERE supplierId = :supplierId")
+    suspend fun getSupplierById(supplierId: Int): Supplier?
 
-    @Query("SELECT * FROM suppliers WHERE name LIKE '%' || :searchQuery || '%' OR address LIKE '%' || :searchQuery || '%' OR email LIKE '%' || :searchQuery || '%' OR phone LIKE '%' || :searchQuery || '%'")
-    fun searchSuppliers(searchQuery: String): Flow<List<Supplier>>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSupplier(supplier: Supplier)
 
-    @Query("DELETE FROM suppliers")
-    suspend fun deleteAllSuppliers()
+    @Update
+    suspend fun updateSupplier(supplier: Supplier)
+
+    @Delete
+    suspend fun deleteSupplier(supplier: Supplier)
 } 

@@ -9,21 +9,28 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import com.google.android.material.textfield.TextInputEditText
-import com.tfdev.inventorymanagement.data.Product
+import com.tfdev.inventorymanagement.data.entity.Product
 import com.tfdev.inventorymanagement.databinding.DialogProductBinding
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import android.widget.ArrayAdapter
+import kotlinx.coroutines.launch
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import timber.log.Timber
 
 @AndroidEntryPoint
 class ProductDialogFragment : DialogFragment() {
 
     private var _binding: DialogProductBinding? = null
     private val binding get() = _binding!!
-
     private val viewModel: ProductViewModel by viewModels()
     private var product: Product? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        @Suppress("DEPRECATION")
         product = arguments?.getParcelable(ARG_PRODUCT)
     }
 
@@ -40,6 +47,60 @@ class ProductDialogFragment : DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         setupViews()
         setupClickListeners()
+        observeCategories()
+        observeSuppliers()
+    }
+
+    private fun observeCategories() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.categories.collect { categories ->
+                    if (categories.isNotEmpty()) {
+                        val items = categories.map { "${it.categoryId} - ${it.name}" }
+                        val adapter = ArrayAdapter(
+                            requireContext(),
+                            android.R.layout.simple_dropdown_item_1line,
+                            items
+                        )
+                        binding.menuCategories.setAdapter(adapter)
+                        
+                        // Eğer düzenleme modundaysa, mevcut kategoriyi seç
+                        product?.let { product ->
+                            val selectedCategory = categories.find { it.categoryId == product.categoryId }
+                            selectedCategory?.let {
+                                binding.menuCategories.setText("${it.categoryId} - ${it.name}", false)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeSuppliers() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.suppliers.collect { suppliers ->
+                    if (suppliers.isNotEmpty()) {
+                        val items = suppliers.map { "${it.supplierId} - ${it.name}" }
+                        val adapter = ArrayAdapter(
+                            requireContext(),
+                            android.R.layout.simple_dropdown_item_1line,
+                            items
+                        )
+                        binding.menuSuppliers.setAdapter(adapter)
+                        
+                        // Eğer düzenleme modundaysa, mevcut tedarikçiyi seç
+                        product?.let { product ->
+                            val selectedSupplier = suppliers.find { it.supplierId == product.supplierId }
+                            selectedSupplier?.let {
+                                binding.menuSuppliers.setText("${it.supplierId} - ${it.name}", false)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun setupViews() {
@@ -49,8 +110,6 @@ class ProductDialogFragment : DialogFragment() {
                 etProductDescription.setText(product.description)
                 etProductStock.setText(product.stock.toString())
                 etProductPrice.setText(product.price.toString())
-                etCategoryId.setText(product.categoryId.toString())
-                etSupplierId.setText(product.supplierId.toString())
                 btnSave.text = "Güncelle"
                 dialogTitle.text = "Ürün Düzenle"
             }
@@ -60,14 +119,20 @@ class ProductDialogFragment : DialogFragment() {
     private fun setupClickListeners() {
         binding.btnSave.setOnClickListener {
             if (validateInputs()) {
-                val newProduct = createProductFromInputs()
-                if (product == null) {
-                    viewModel.addProduct(newProduct)
-                } else {
-                    viewModel.updateProduct(newProduct.copy(productId = product!!.productId))
+                try {
+                    val newProduct = createProductFromInputs()
+                    if (product == null) {
+                        viewModel.addProduct(newProduct)
+                        showSuccessMessage("Ürün başarıyla eklendi")
+                    } else {
+                        viewModel.updateProduct(newProduct)
+                        showSuccessMessage("Ürün başarıyla güncellendi")
+                    }
+                    setFragmentResult(REQUEST_KEY, bundleOf(RESULT_KEY to true))
+                    dismiss()
+                } catch (e: Exception) {
+                    showErrorMessage("İşlem sırasında bir hata oluştu: ${e.message}")
                 }
-                setFragmentResult(REQUEST_KEY, bundleOf(RESULT_KEY to true))
-                dismiss()
             }
         }
 
@@ -77,34 +142,109 @@ class ProductDialogFragment : DialogFragment() {
     }
 
     private fun validateInputs(): Boolean {
-        val inputs = listOf(
-            binding.etProductName to "Ürün adı boş olamaz",
-            binding.etProductDescription to "Ürün açıklaması boş olamaz",
-            binding.etProductStock to "Stok miktarı boş olamaz",
-            binding.etProductPrice to "Fiyat boş olamaz",
-            binding.etCategoryId to "Kategori ID boş olamaz",
-            binding.etSupplierId to "Tedarikçi ID boş olamaz"
-        )
-
         var isValid = true
-        inputs.forEach { (input, error) ->
-            if (input.text.isNullOrBlank()) {
-                input.error = error
+
+        // Boş alan kontrolü
+        if (binding.etProductName.text.isNullOrBlank()) {
+            binding.etProductName.error = "Ürün adı boş olamaz"
+            isValid = false
+        }
+        if (binding.etProductDescription.text.isNullOrBlank()) {
+            binding.etProductDescription.error = "Ürün açıklaması boş olamaz"
+            isValid = false
+        }
+        if (binding.etProductStock.text.isNullOrBlank()) {
+            binding.etProductStock.error = "Stok miktarı boş olamaz"
+            isValid = false
+        }
+        if (binding.etProductPrice.text.isNullOrBlank()) {
+            binding.etProductPrice.error = "Fiyat boş olamaz"
+            isValid = false
+        }
+
+        // Sayısal değer kontrolleri
+        if (isValid) {
+            try {
+                val stock = binding.etProductStock.text.toString().toInt()
+                if (stock < 0) {
+                    binding.etProductStock.error = "Stok miktarı negatif olamaz"
+                    isValid = false
+                }
+            } catch (e: NumberFormatException) {
+                binding.etProductStock.error = "Geçerli bir sayı giriniz"
+                isValid = false
+            }
+
+            try {
+                val price = binding.etProductPrice.text.toString().toDouble()
+                if (price < 0) {
+                    binding.etProductPrice.error = "Fiyat negatif olamaz"
+                    isValid = false
+                }
+            } catch (e: NumberFormatException) {
+                binding.etProductPrice.error = "Geçerli bir sayı giriniz"
                 isValid = false
             }
         }
+
+        // Kategori ve tedarikçi kontrolü
+        if (binding.menuCategories.text.isNullOrBlank()) {
+            binding.menuCategories.error = "Kategori seçilmedi"
+            isValid = false
+        }
+        if (binding.menuSuppliers.text.isNullOrBlank()) {
+            binding.menuSuppliers.error = "Tedarikçi seçilmedi"
+            isValid = false
+        }
+
         return isValid
     }
 
+    private fun getCategoryIdFromSelection(): Int? {
+        return try {
+            val selection = binding.menuCategories.text.toString()
+            if (selection.isBlank()) return null
+            selection.split(" - ").firstOrNull()?.toIntOrNull()
+        } catch (e: Exception) {
+            Timber.e(e, "Kategori ID alınırken hata")
+            null
+        }
+    }
+
+    private fun getSupplierIdFromSelection(): Int? {
+        return try {
+            val selection = binding.menuSuppliers.text.toString()
+            if (selection.isBlank()) return null
+            selection.split(" - ").firstOrNull()?.toIntOrNull()
+        } catch (e: Exception) {
+            Timber.e(e, "Tedarikçi ID alınırken hata")
+            null
+        }
+    }
+
     private fun createProductFromInputs(): Product {
+        val categoryId = getCategoryIdFromSelection()
+            ?: throw IllegalStateException("Lütfen geçerli bir kategori seçin")
+        val supplierId = getSupplierIdFromSelection()
+            ?: throw IllegalStateException("Lütfen geçerli bir tedarikçi seçin")
+
         return Product(
-            name = binding.etProductName.text.toString(),
-            description = binding.etProductDescription.text.toString(),
+            productId = product?.productId ?: 0,
+            name = binding.etProductName.text.toString().trim(),
+            description = binding.etProductDescription.text.toString().trim(),
             stock = binding.etProductStock.text.toString().toInt(),
             price = binding.etProductPrice.text.toString().toDouble(),
-            categoryId = binding.etCategoryId.text.toString().toInt(),
-            supplierId = binding.etSupplierId.text.toString().toInt()
+            categoryId = categoryId,
+            supplierId = supplierId
         )
+    }
+
+    private fun showSuccessMessage(message: String) {
+        Snackbar.make(requireView(), message, Snackbar.LENGTH_SHORT).show()
+    }
+
+    private fun showErrorMessage(message: String) {
+        Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show()
     }
 
     override fun onDestroyView() {
@@ -119,7 +259,9 @@ class ProductDialogFragment : DialogFragment() {
 
         fun newInstance(product: Product? = null): ProductDialogFragment {
             return ProductDialogFragment().apply {
-                arguments = bundleOf(ARG_PRODUCT to product)
+                arguments = Bundle().apply {
+                    putParcelable(ARG_PRODUCT, product)
+                }
             }
         }
     }

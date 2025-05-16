@@ -1,10 +1,14 @@
-package com.tfdev.inventorymanagement.data
+package com.tfdev.inventorymanagement.data.entity
 
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.parcelize.Parcelize
 import java.util.Date
 
+@Parcelize
 @Entity(
     tableName = "shipments",
     foreignKeys = [
@@ -26,6 +30,11 @@ import java.util.Date
             childColumns = ["customerId"],
             onDelete = ForeignKey.CASCADE
         )
+    ],
+    indices = [
+        Index(value = ["orderId"]),
+        Index(value = ["warehouseId"]),
+        Index(value = ["customerId"])
     ]
 )
 data class Shipment(
@@ -34,5 +43,7 @@ data class Shipment(
     val orderId: Int,
     val warehouseId: Int,
     val customerId: Int,
-    val shipmentDate: Date
-) 
+    val shipmentDate: Date,
+    val deliveryDate: Date? = null,
+    val status: String = "PENDING" // "PENDING", "SHIPPED", "DELIVERED"
+) : Parcelable 

@@ -5,7 +5,32 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.tfdev.inventorymanagement.data.dao.*
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
+import com.tfdev.inventorymanagement.data.converter.Converters
+import com.tfdev.inventorymanagement.data.dao.CategoryDao
+import com.tfdev.inventorymanagement.data.dao.CustomerDao
+import com.tfdev.inventorymanagement.data.dao.InventoryTransactionDao
+import com.tfdev.inventorymanagement.data.dao.OrderDao
+import com.tfdev.inventorymanagement.data.dao.OrderDetailsDao
+import com.tfdev.inventorymanagement.data.dao.ProductDao
+import com.tfdev.inventorymanagement.data.dao.ShipmentDao
+import com.tfdev.inventorymanagement.data.dao.ShipmentDetailsDao
+import com.tfdev.inventorymanagement.data.dao.SupplierDao
+import com.tfdev.inventorymanagement.data.dao.WarehouseDao
+import com.tfdev.inventorymanagement.data.dao.WarehouseStockDao
+import com.tfdev.inventorymanagement.data.entity.Category
+import com.tfdev.inventorymanagement.data.entity.Customer
+import com.tfdev.inventorymanagement.data.entity.InventoryTransaction
+import com.tfdev.inventorymanagement.data.entity.Order
+import com.tfdev.inventorymanagement.data.entity.OrderDetails
+import com.tfdev.inventorymanagement.data.entity.Product
+import com.tfdev.inventorymanagement.data.entity.Shipment
+import com.tfdev.inventorymanagement.data.entity.ShipmentDetails
+import com.tfdev.inventorymanagement.data.entity.Supplier
+import com.tfdev.inventorymanagement.data.entity.Warehouse
+import com.tfdev.inventorymanagement.data.entity.WarehouseStock
+import timber.log.Timber
 
 @Database(
     entities = [
@@ -21,7 +46,8 @@ import com.tfdev.inventorymanagement.data.dao.*
         WarehouseStock::class,
         InventoryTransaction::class
     ],
-    version = 1
+    version = 3,
+    exportSchema = false
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
@@ -40,16 +66,48 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null
 
+        private val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Eski tabloyu yedekle
+                db.execSQL("CREATE TABLE warehouses_backup (warehouseId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, warehouseName TEXT NOT NULL, address TEXT NOT NULL, city TEXT NOT NULL, capacity INTEGER NOT NULL)")
+                db.execSQL("INSERT INTO warehouses_backup (warehouseId, warehouseName, address, city, capacity) SELECT warehouseId, name, address, city, capacity FROM warehouses")
+                
+                // Eski tabloyu sil
+                db.execSQL("DROP TABLE warehouses")
+                
+                // Yeni tabloyu oluştur
+                db.execSQL("ALTER TABLE warehouses_backup RENAME TO warehouses")
+            }
+        }
+
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Tüm tabloları temizle
+                db.execSQL("DELETE FROM products")
+                db.execSQL("DELETE FROM categories")
+                db.execSQL("DELETE FROM suppliers")
+                db.execSQL("DELETE FROM warehouses")
+                db.execSQL("DELETE FROM orders")
+                db.execSQL("DELETE FROM order_details")
+                db.execSQL("DELETE FROM shipments")
+                db.execSQL("DELETE FROM shipment_details")
+                db.execSQL("DELETE FROM warehouse_stocks")
+                db.execSQL("DELETE FROM inventory_transactions")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
-                Room.databaseBuilder(
+                val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "inventory_db"
+                    "inventory_database"
                 )
-                    .fallbackToDestructiveMigration()
-                    .build()
-                    .also { INSTANCE = it }
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                .fallbackToDestructiveMigration()
+                .build()
+                INSTANCE = instance
+                instance
             }
         }
     }

@@ -1,13 +1,13 @@
 package com.tfdev.inventorymanagement.data.dao
 
 import androidx.room.*
-import com.tfdev.inventorymanagement.data.Warehouse
+import com.tfdev.inventorymanagement.data.entity.Warehouse
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WarehouseDao {
-    @Insert
-    suspend fun insert(warehouse: Warehouse)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertWarehouse(warehouse: Warehouse)
 
     @Update
     suspend fun update(warehouse: Warehouse)
@@ -24,7 +24,7 @@ interface WarehouseDao {
     @Query("SELECT * FROM warehouses WHERE warehouseName LIKE '%' || :searchQuery || '%' OR city LIKE '%' || :searchQuery || '%'")
     fun searchWarehouses(searchQuery: String): Flow<List<Warehouse>>
 
-    @Query("SELECT * FROM warehouses WHERE capacity > :minCapacity")
+    @Query("SELECT * FROM warehouses WHERE capacity >= :minCapacity")
     fun getWarehousesWithAvailableCapacity(minCapacity: Int): Flow<List<Warehouse>>
 
     @Query("DELETE FROM warehouses")

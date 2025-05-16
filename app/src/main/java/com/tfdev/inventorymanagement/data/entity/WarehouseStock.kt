@@ -1,12 +1,15 @@
-package com.tfdev.inventorymanagement.data
+package com.tfdev.inventorymanagement.data.entity
 
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
-import java.util.Date
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 @Entity(
-    tableName = "inventory_transactions",
+    tableName = "warehouse_stocks",
     foreignKeys = [
         ForeignKey(
             entity = Product::class,
@@ -20,15 +23,16 @@ import java.util.Date
             childColumns = ["warehouseId"],
             onDelete = ForeignKey.CASCADE
         )
+    ],
+    indices = [
+        Index(value = ["productId"]),
+        Index(value = ["warehouseId"])
     ]
 )
-data class InventoryTransaction(
+data class WarehouseStock(
     @PrimaryKey(autoGenerate = true)
-    val transactionId: Int = 0,
+    val stockId: Int = 0,
     val productId: Int,
     val warehouseId: Int,
-    val quantity: Int,
-    val transactionDirection: String, // "IN" veya "OUT"
-    val transactionDate: Date,
-    val description: String? = null
-) 
+    val quantity: Int
+) : Parcelable 

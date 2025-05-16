@@ -1,122 +1,132 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:padding="16dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:layout_height="wrap_content">
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:paddingBottom="10dp"
-            android:layout_weight="1"
-            android:layout_marginTop="10dp"
-            android:gravity="start|center_vertical"
-            android:text="Müşteri"
-            android:textColor="@color/black"
-            android:textSize="40sp"
-            android:textStyle="bold"/>
-
-        <Button
-            android:id="@+id/btnProductToCustomer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Sipariş"
-            android:textColor="@color/black"
-            android:layout_marginStart="8dp"
-            android:paddingLeft="20dp"
-            android:drawableLeft="@drawable/ic_arrow_left"
-            />
-    </LinearLayout>
-
-    <EditText
-        android:id="@+id/etCustomerName"
-        android:background="@drawable/bg_rounded_corner_filled_gray"
-        android:hint="Ad Soyad"
-        android:paddingLeft="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="35dp" />
-
-    <!-- Diğer EditText'ler aynı şekilde kalıyor -->
-    <EditText
-        android:id="@+id/etCustomerAddress"
-        android:layout_marginBottom="10dp"
-        android:paddingLeft="10dp"
-        android:background="@drawable/bg_rounded_corner_filled_gray"
-        android:hint="Adres"
-        android:layout_width="match_parent"
-        android:layout_height="35dp" />
-
-    <EditText
-        android:id="@+id/etCustomerCity"
-        android:background="@drawable/bg_rounded_corner_filled_gray"
-        android:layout_marginBottom="10dp"
-        android:paddingLeft="10dp"
-        android:hint="Şehir"
-        android:inputType="text"
-        android:layout_width="match_parent"
-        android:layout_height="35dp" />
-
-    <EditText
-        android:id="@+id/etCustomerPhone"
-        android:background="@drawable/bg_rounded_corner_filled_gray"
-        android:layout_marginBottom="10dp"
-        android:paddingLeft="10dp"
-        android:hint="Telefon"
-        android:inputType="numberDecimal"
-        android:layout_width="match_parent"
-        android:layout_height="35dp" />
-
-
-    <EditText
-        android:id="@+id/etCustomerMail"
-        android:background="@drawable/bg_rounded_corner_filled_gray"
-        android:paddingLeft="10dp"
-        android:hint="E Posta"
-        android:inputType="text"
-        android:layout_width="match_parent"
-        android:layout_height="35dp" />
-
-    <Button
-        android:id="@+id/btnAddCustomer"
-        android:background="@drawable/bg_rounded_corner_filled_gray"
-        android:paddingLeft="10dp"
-        android:textColor="@color/white"
-        android:backgroundTint="@color/black"
-        android:text="Müşteri Ekle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp" />
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/customerRecyclerView"
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="10dp"
-            android:clipToPadding="false"
-            android:paddingBottom="16dp" />
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/primary"
+            app:title="Müşteriler"
+            app:titleTextColor="@color/white" />
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="wrap_content"
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
-    </FrameLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:hint="Ad Soyad">
 
-</LinearLayout>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCustomerName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPersonName" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:hint="Adres">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCustomerAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPostalAddress" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:hint="Şehir">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCustomerCity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:hint="Telefon">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCustomerPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="phone" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:hint="E-posta">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etCustomerMail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textEmailAddress" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAddCustomer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Müşteri Ekle" />
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/customerRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false" />
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

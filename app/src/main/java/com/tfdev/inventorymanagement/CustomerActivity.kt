@@ -8,7 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.tfdev.inventorymanagement.adapter.CustomerAdapter
-import com.tfdev.inventorymanagement.data.Customer
+import com.tfdev.inventorymanagement.data.entity.Customer
 import com.tfdev.inventorymanagement.databinding.ActivityCustomerBinding
 import com.tfdev.inventorymanagement.ui.customer.CustomerViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,15 +26,45 @@ class CustomerActivity : AppCompatActivity() {
         binding = ActivityCustomerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            setDisplayShowHomeEnabled(true)
+            title = "Müşteriler"
+        }
+
         setupRecyclerView()
         setupClickListeners()
         observeViewModel()
     }
 
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return true
+    }
+
+    override fun onBackPressed() {
+        @Suppress("DEPRECATION")
+        super.onBackPressed()
+    }
+
     private fun setupRecyclerView() {
-        adapter = CustomerAdapter()
-        binding.customerRecyclerView.layoutManager = LinearLayoutManager(this)
-        binding.customerRecyclerView.adapter = adapter
+        adapter = CustomerAdapter(
+            onItemClick = { _ ->
+                // TODO: Müşteri detaylarına git
+            },
+            onEditClick = { _ ->
+                // TODO: Müşteri düzenleme
+            },
+            onDeleteClick = { _ ->
+                // TODO: Müşteri silme
+            }
+        )
+
+        binding.customerRecyclerView.apply {
+            adapter = this@CustomerActivity.adapter
+            layoutManager = LinearLayoutManager(this@CustomerActivity)
+        }
     }
 
     private fun setupClickListeners() {
@@ -45,51 +75,58 @@ class CustomerActivity : AppCompatActivity() {
 
     private fun observeViewModel() {
         lifecycleScope.launch {
-            viewModel.uiState.collect { state ->
-                when (state) {
-                    is CustomerViewModel.UiState.Loading -> {
-                        binding.progressBar.isVisible = true
-                        binding.customerRecyclerView.isVisible = false
-                    }
-                    is CustomerViewModel.UiState.Success -> {
-                        binding.progressBar.isVisible = false
-                        binding.customerRecyclerView.isVisible = true
-                        adapter.submitList(state.customers)
-                    }
-                    is CustomerViewModel.UiState.Error -> {
-                        binding.progressBar.isVisible = false
-                        binding.customerRecyclerView.isVisible = true
-                        Snackbar.make(binding.root, state.message, Snackbar.LENGTH_LONG).show()
-                    }
-                }
+            viewModel.allCustomers.observe(this@CustomerActivity) { customers ->
+                adapter.submitList(customers)
             }
         }
     }
 
     private fun addCustomer() {
-        val name = binding.etCustomerName.text.toString()
-        val address = binding.etCustomerAddress.text.toString()
-        val phone = binding.etCustomerPhone.text.toString()
-        val email = binding.etCustomerMail.text.toString()
-        val city = binding.etCustomerCity.text.toString()
+        val name = binding.etCustomerName.text?.toString().orEmpty()
+        val address = binding.etCustomerAddress.text?.toString().orEmpty()
+        val phone = binding.etCustomerPhone.text?.toString().orEmpty()
+        val email = binding.etCustomerMail.text?.toString().orEmpty()
+        val city = binding.etCustomerCity.text?.toString().orEmpty()
 
-        val customer = Customer(
-            name = name,
-            address = address,
-            phoneNumber = phone,
-            email = email,
-            city = city
+        if (validateInputs()) {
+            val customer = Customer(
+                name = name,
+                address = address,
+                phoneNumber = phone,
+                email = email,
+                city = city
+            )
+
+            viewModel.saveCustomer(customer)
+            clearInputs()
+            Snackbar.make(binding.root, "Müşteri başarıyla eklendi", Snackbar.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun validateInputs(): Boolean {
+        var isValid = true
+        val inputs = listOf(
+            binding.etCustomerName to "Müşteri adı boş olamaz",
+            binding.etCustomerAddress to "Adres boş olamaz",
+            binding.etCustomerPhone to "Telefon numarası boş olamaz",
+            binding.etCustomerMail to "E-posta boş olamaz",
+            binding.etCustomerCity to "Şehir boş olamaz"
         )
 
-        viewModel.addCustomer(customer)
-        clearInputs()
+        inputs.forEach { (input, error) ->
+            if (input.text?.toString().isNullOrBlank()) {
+                input.error = error
+                isValid = false
+            }
+        }
+        return isValid
     }
 
     private fun clearInputs() {
-        binding.etCustomerName.text.clear()
-        binding.etCustomerAddress.text.clear()
-        binding.etCustomerPhone.text.clear()
-        binding.etCustomerMail.text.clear()
-        binding.etCustomerCity.text.clear()
+        binding.etCustomerName.text?.clear()
+        binding.etCustomerAddress.text?.clear()
+        binding.etCustomerPhone.text?.clear()
+        binding.etCustomerMail.text?.clear()
+        binding.etCustomerCity.text?.clear()
     }
 }

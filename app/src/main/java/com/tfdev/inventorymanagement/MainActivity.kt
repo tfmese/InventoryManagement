@@ -105,16 +105,19 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Dashboard istatistiklerini gözlemle
         lifecycleScope.launch {
             viewModel.dashboardStats.collectLatest { stats ->
-                stats?.let {
-                    binding.tvProductCount.text = it.totalProducts.toString()
-                    binding.tvCustomerCount.text = it.totalCustomers.toString()
-                    binding.tvOrderCount.text = it.totalOrders.toString()
-                    binding.tvWarehouseCount.text = it.totalWarehouses.toString()
+                stats.let {
+                    updateDashboardStats(it)
                 }
             }
         }
+    }
+
+    private fun updateDashboardStats(stats: MainViewModel.DashboardStats) {
+        binding.tvProductCount.text = stats.totalProducts.toString()
+        binding.tvCustomerCount.text = stats.totalCustomers.toString()
+        binding.tvOrderCount.text = stats.totalOrders.toString()
+        binding.tvWarehouseCount.text = stats.totalWarehouses.toString()
     }
 }

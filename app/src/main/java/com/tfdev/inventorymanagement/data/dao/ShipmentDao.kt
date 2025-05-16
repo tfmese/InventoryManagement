@@ -1,14 +1,14 @@
 package com.tfdev.inventorymanagement.data.dao
 
 import androidx.room.*
-import com.tfdev.inventorymanagement.data.Shipment
+import com.tfdev.inventorymanagement.data.entity.Shipment
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
 @Dao
 interface ShipmentDao {
-    @Insert
-    suspend fun insert(shipment: Shipment): Long // Returns the inserted shipment's ID
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertShipment(shipment: Shipment)
 
     @Update
     suspend fun update(shipment: Shipment)

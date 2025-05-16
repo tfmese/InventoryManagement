@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.tfdev.inventorymanagement.R
-import com.tfdev.inventorymanagement.data.InventoryTransaction
+import com.tfdev.inventorymanagement.data.entity.InventoryTransaction
 import com.tfdev.inventorymanagement.databinding.ItemTransactionBinding
 import java.text.SimpleDateFormat
 import java.util.Locale

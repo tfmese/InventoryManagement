@@ -1,4 +1,4 @@
-package com.tfdev.inventorymanagement.data
+package com.tfdev.inventorymanagement.data.entity
 
 import android.os.Parcelable
 import androidx.room.Entity
@@ -6,12 +6,13 @@ import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-@Entity(tableName = "suppliers")
-data class Supplier(
+@Entity(tableName = "customers")
+data class Customer(
     @PrimaryKey(autoGenerate = true)
-    val supplierId: Int = 0,
+    val customerId: Int = 0,
     val name: String,
+    val address: String,
+    val phoneNumber: String,
     val email: String,
-    val phone: String,
-    val address: String
+    val city: String
 ) : Parcelable 
