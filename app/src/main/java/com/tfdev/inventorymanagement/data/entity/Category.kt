@@ -11,5 +11,7 @@ data class Category(
     @PrimaryKey(autoGenerate = true)
     val categoryId: Int = 0,
     val name: String,
-    val description: String
-) : Parcelable 
+    val description: String? = null
+) : Parcelable {
+    override fun toString(): String = name
+} 

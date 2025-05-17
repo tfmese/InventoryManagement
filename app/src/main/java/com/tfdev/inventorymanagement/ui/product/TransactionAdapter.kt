@@ -35,18 +35,18 @@ class TransactionAdapter : ListAdapter<InventoryTransaction, TransactionAdapter.
         fun bind(transaction: InventoryTransaction) {
             binding.apply {
                 tvTransactionDate.text = dateFormat.format(transaction.transactionDate)
-                tvTransactionDescription.text = when (transaction.transactionDirection) {
+                tvTransactionDescription.text = when (transaction.type) {
                     "IN" -> "Depo ${transaction.warehouseId}'e giriş"
                     "OUT" -> "Depo ${transaction.warehouseId}'den çıkış"
                     else -> "Bilinmeyen işlem"
                 }
-                tvQuantity.text = when (transaction.transactionDirection) {
+                tvQuantity.text = when (transaction.type) {
                     "IN" -> "+${transaction.quantity}"
                     "OUT" -> "-${transaction.quantity}"
                     else -> "${transaction.quantity}"
                 }
                 ivTransactionType.setImageResource(
-                    when (transaction.transactionDirection) {
+                    when (transaction.type) {
                         "IN" -> R.drawable.ic_arrow_up
                         "OUT" -> R.drawable.ic_arrow_down
                         else -> R.drawable.ic_error

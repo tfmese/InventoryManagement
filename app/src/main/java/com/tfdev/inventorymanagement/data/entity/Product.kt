@@ -15,13 +15,13 @@ import kotlinx.parcelize.Parcelize
             entity = Category::class,
             parentColumns = ["categoryId"],
             childColumns = ["categoryId"],
-            onDelete = ForeignKey.RESTRICT
+            onDelete = ForeignKey.SET_NULL
         ),
         ForeignKey(
             entity = Supplier::class,
             parentColumns = ["supplierId"],
             childColumns = ["supplierId"],
-            onDelete = ForeignKey.RESTRICT
+            onDelete = ForeignKey.SET_NULL
         )
     ],
     indices = [
@@ -33,9 +33,9 @@ data class Product(
     @PrimaryKey(autoGenerate = true)
     val productId: Int = 0,
     val name: String,
-    val description: String,
-    val stock: Int,
+    val description: String? = null,
     val price: Double,
-    val categoryId: Int,
-    val supplierId: Int
+    val stock: Int = 0,
+    val categoryId: Int? = null,
+    val supplierId: Int? = null
 ) : Parcelable 

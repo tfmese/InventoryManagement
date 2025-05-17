@@ -47,9 +47,6 @@ class ProductViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 categoryDao.getAllCategories().collect { categories ->
-                    if (categories.isEmpty()) {
-                        insertDefaultCategories()
-                    }
                     _categories.value = categories
                 }
             } catch (e: Exception) {
@@ -58,60 +55,15 @@ class ProductViewModel @Inject constructor(
         }
     }
 
-    private suspend fun insertDefaultCategories() {
-        try {
-            val defaultCategories = listOf(
-                Category(categoryId = 1, name = "Elektronik", description = "Elektronik ürünler"),
-                Category(categoryId = 2, name = "Giyim", description = "Giyim ürünleri"),
-                Category(categoryId = 3, name = "Gıda", description = "Gıda ürünleri"),
-                Category(categoryId = 4, name = "Kozmetik", description = "Kozmetik ürünleri"),
-                Category(categoryId = 5, name = "Ev & Yaşam", description = "Ev ve yaşam ürünleri")
-            )
-            defaultCategories.forEach { category ->
-                try {
-                    categoryDao.insertCategory(category)
-                } catch (e: Exception) {
-                    Timber.e(e, "Kategori eklenirken hata: ${category.name}")
-                }
-            }
-        } catch (e: Exception) {
-            Timber.e(e, "Varsayılan kategoriler eklenirken hata")
-        }
-    }
-
     private fun loadSuppliers() {
         viewModelScope.launch {
             try {
                 supplierDao.getAllSuppliers().collect { suppliers ->
-                    if (suppliers.isEmpty()) {
-                        insertDefaultSuppliers()
-                    }
                     _suppliers.value = suppliers
                 }
             } catch (e: Exception) {
                 Timber.e(e, "Tedarikçiler yüklenirken hata")
             }
-        }
-    }
-
-    private suspend fun insertDefaultSuppliers() {
-        try {
-            val defaultSuppliers = listOf(
-                Supplier(supplierId = 1, name = "ABC Elektronik", email = "abc@example.com", phone = "5551234567", address = "İstanbul"),
-                Supplier(supplierId = 2, name = "XYZ Tekstil", email = "xyz@example.com", phone = "5559876543", address = "İzmir"),
-                Supplier(supplierId = 3, name = "123 Gıda", email = "123@example.com", phone = "5553334444", address = "Ankara"),
-                Supplier(supplierId = 4, name = "456 Kozmetik", email = "456@example.com", phone = "5555556666", address = "Bursa"),
-                Supplier(supplierId = 5, name = "789 Market", email = "789@example.com", phone = "5557778888", address = "Antalya")
-            )
-            defaultSuppliers.forEach { supplier ->
-                try {
-                    supplierDao.insertSupplier(supplier)
-                } catch (e: Exception) {
-                    Timber.e(e, "Tedarikçi eklenirken hata: ${supplier.name}")
-                }
-            }
-        } catch (e: Exception) {
-            Timber.e(e, "Varsayılan tedarikçiler eklenirken hata")
         }
     }
 

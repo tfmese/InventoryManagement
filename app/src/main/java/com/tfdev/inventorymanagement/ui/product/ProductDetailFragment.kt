@@ -59,10 +59,8 @@ class ProductDetailFragment : Fragment() {
     private fun setupFab() {
         binding.fabEdit.setOnClickListener {
             viewModel.uiState.value.let { state ->
-                if (state is ProductViewModel.UiState.Success) {
-                    state.products.find { it.productId == productId }?.let { product ->
-                        showEditDialog(product)
-                    }
+                if (state is ProductViewModel.UiState.ProductDetailsSuccess) {
+                    showEditDialog(state.productDetails.product)
                 }
             }
         }
@@ -98,18 +96,17 @@ class ProductDetailFragment : Fragment() {
 
     private fun updateUI(details: ProductDetails) {
         binding.apply {
-            tvProductName.text = details.product.name
-            tvProductDescription.text = details.product.description
-            tvProductPrice.text = "₺${String.format("%.2f", details.product.price)}"
-            tvTotalStock.text = "Toplam Stok: ${details.product.stock}"
-            tvCategory.text = "Kategori: ${details.category.name}"
-            tvSupplier.text = "Tedarikçi: ${details.supplier.name}"
+            tvName.text = details.product.name
+            tvDescription.text = details.product.description
+            tvPrice.text = "₺${String.format("%.2f", details.product.price)}"
+            tvStock.text = "Stok: ${details.product.stock}"
+            tvCategory.text = details.category?.name ?: "Kategori Yok"
         }
     }
 
     private fun showEditDialog(product: Product) {
         ProductDialogFragment.newInstance(product)
-            .show(childFragmentManager, "product_dialog")
+            .show(childFragmentManager, "edit_product")
     }
 
     override fun onDestroyView() {

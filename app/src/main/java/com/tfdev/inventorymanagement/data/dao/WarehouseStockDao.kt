@@ -29,4 +29,7 @@ interface WarehouseStockDao {
 
     @Query("DELETE FROM warehouse_stocks WHERE productId = :productId")
     suspend fun deleteStocksByProduct(productId: Int)
+
+    @Query("DELETE FROM warehouse_stocks")
+    suspend fun deleteAllWarehouseStocks()
 } 

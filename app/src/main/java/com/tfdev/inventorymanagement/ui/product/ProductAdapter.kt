@@ -14,6 +14,8 @@ class ProductAdapter(
     private val onDeleteClick: (Product) -> Unit
 ) : ListAdapter<Product, ProductAdapter.ProductViewHolder>(ProductDiffCallback()) {
 
+    private var categories: Map<Int, String> = emptyMap()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
         val binding = ItemProductBinding.inflate(
             LayoutInflater.from(parent.context),
@@ -25,6 +27,11 @@ class ProductAdapter(
 
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         holder.bind(getItem(position))
+    }
+
+    fun updateCategories(categoryMap: Map<Int, String>) {
+        categories = categoryMap
+        notifyDataSetChanged()
     }
 
     inner class ProductViewHolder(
@@ -56,10 +63,13 @@ class ProductAdapter(
 
         fun bind(product: Product) {
             binding.apply {
-                tvProductName.text = product.name
-                tvProductDescription.text = product.description
-                tvProductStock.text = "Stok: ${product.stock}"
-                tvProductPrice.text = "₺${String.format("%.2f", product.price)}"
+                tvName.text = product.name
+                tvDescription.text = product.description
+                tvStock.text = "Stok: ${product.stock}"
+                tvPrice.text = "₺${String.format("%.2f", product.price)}"
+                tvCategory.text = product.categoryId?.let { categoryId ->
+                    categories[categoryId] ?: "Kategori Yok"
+                } ?: "Kategori Yok"
             }
         }
     }

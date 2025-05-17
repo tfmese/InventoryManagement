@@ -5,17 +5,26 @@ import androidx.room.Relation
 
 data class ProductDetails(
     @Embedded
-    val product: Product,
+    var product: Product,
     
     @Relation(
         parentColumn = "categoryId",
         entityColumn = "categoryId"
     )
-    val category: Category,
+    var category: Category?,
     
     @Relation(
         parentColumn = "supplierId",
         entityColumn = "supplierId"
     )
-    val supplier: Supplier
-) 
+    var supplier: Supplier?
+) {
+    constructor() : this(
+        product = Product(
+            name = "",
+            price = 0.0
+        ),
+        category = null,
+        supplier = null
+    )
+} 

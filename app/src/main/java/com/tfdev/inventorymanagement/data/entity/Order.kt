@@ -16,7 +16,7 @@ import java.util.Date
             entity = Customer::class,
             parentColumns = ["customerId"],
             childColumns = ["customerId"],
-            onDelete = ForeignKey.RESTRICT
+            onDelete = ForeignKey.CASCADE
         )
     ],
     indices = [Index(value = ["customerId"])]
@@ -26,6 +26,6 @@ data class Order(
     val orderId: Int = 0,
     val customerId: Int,
     val orderDate: Date,
-    val totalAmount: Double,
+    val totalAmount: Double = 0.0,
     val status: String = "PENDING" // "PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"
 ) : Parcelable 

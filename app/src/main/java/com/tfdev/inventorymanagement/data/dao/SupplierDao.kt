@@ -25,4 +25,7 @@ interface SupplierDao {
 
     @Delete
     suspend fun deleteSupplier(supplier: Supplier)
+
+    @Query("DELETE FROM suppliers")
+    suspend fun deleteAllSuppliers()
 } 

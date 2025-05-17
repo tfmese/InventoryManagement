@@ -10,6 +10,9 @@ interface ProductDao {
     @Query("SELECT * FROM products")
     fun getAllProducts(): Flow<List<Product>>
 
+    @Query("SELECT * FROM products")
+    suspend fun getAllProductsSync(): List<Product>
+
     @Query("SELECT * FROM products WHERE productId = :productId")
     suspend fun getProductById(productId: Int): Product?
 

@@ -26,8 +26,10 @@ import java.util.Date
         )
     ],
     indices = [
-        Index(value = ["productId"]),
-        Index(value = ["warehouseId"])
+        Index("productId"),
+        Index("warehouseId"),
+        Index("type"),
+        Index("transactionDate")
     ]
 )
 data class InventoryTransaction(
@@ -36,7 +38,7 @@ data class InventoryTransaction(
     val productId: Int,
     val warehouseId: Int,
     val quantity: Int,
-    val transactionDirection: String, // "IN" veya "OUT"
+    val type: String, // "IN" veya "OUT"
     val transactionDate: Date,
     val description: String? = null
 ) : Parcelable 

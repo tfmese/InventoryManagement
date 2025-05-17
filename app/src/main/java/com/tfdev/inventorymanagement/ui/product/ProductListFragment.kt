@@ -15,6 +15,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.tfdev.inventorymanagement.databinding.FragmentProductListBinding
 import com.tfdev.inventorymanagement.data.entity.Product
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -40,11 +41,12 @@ class ProductListFragment : Fragment() {
         setupSearchView()
         setupFab()
         observeUiState()
+        observeCategories()
     }
 
     private fun setupRecyclerView() {
         productAdapter = ProductAdapter(
-            onItemClick = { _ ->
+            onItemClick = { product ->
                 // TODO: Ürün detaylarına git
             },
             onEditClick = { product ->
@@ -103,6 +105,17 @@ class ProductListFragment : Fragment() {
                             // Bu fragment'ta ürün detaylarını göstermeye gerek yok
                         }
                     }
+                }
+            }
+        }
+    }
+
+    private fun observeCategories() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.categories.collectLatest { categories ->
+                    val categoryMap = categories.associate { it.categoryId to it.name }
+                    productAdapter.updateCategories(categoryMap)
                 }
             }
         }

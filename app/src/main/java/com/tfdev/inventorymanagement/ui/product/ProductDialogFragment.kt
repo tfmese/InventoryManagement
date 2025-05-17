@@ -19,6 +19,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import timber.log.Timber
+import com.tfdev.inventorymanagement.adapter.CategorySpinnerAdapter
 
 @AndroidEntryPoint
 class ProductDialogFragment : DialogFragment() {
@@ -27,6 +28,7 @@ class ProductDialogFragment : DialogFragment() {
     private val binding get() = _binding!!
     private val viewModel: ProductViewModel by viewModels()
     private var product: Product? = null
+    private lateinit var categoryAdapter: CategorySpinnerAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,19 +58,14 @@ class ProductDialogFragment : DialogFragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.categories.collect { categories ->
                     if (categories.isNotEmpty()) {
-                        val items = categories.map { "${it.categoryId} - ${it.name}" }
-                        val adapter = ArrayAdapter(
-                            requireContext(),
-                            android.R.layout.simple_dropdown_item_1line,
-                            items
-                        )
-                        binding.menuCategories.setAdapter(adapter)
-                        
+                        categoryAdapter = CategorySpinnerAdapter(requireContext(), categories)
+                        binding.spinnerCategory.setAdapter(categoryAdapter)
+
                         // Eğer düzenleme modundaysa, mevcut kategoriyi seç
                         product?.let { product ->
-                            val selectedCategory = categories.find { it.categoryId == product.categoryId }
-                            selectedCategory?.let {
-                                binding.menuCategories.setText("${it.categoryId} - ${it.name}", false)
+                            val position = categoryAdapter.getPositionForCategory(product.categoryId)
+                            if (position != -1) {
+                                binding.spinnerCategory.setText(categoryAdapter.getItem(position)?.name, false)
                             }
                         }
                     }
@@ -187,13 +184,9 @@ class ProductDialogFragment : DialogFragment() {
             }
         }
 
-        // Kategori ve tedarikçi kontrolü
-        if (binding.menuCategories.text.isNullOrBlank()) {
-            binding.menuCategories.error = "Kategori seçilmedi"
-            isValid = false
-        }
-        if (binding.menuSuppliers.text.isNullOrBlank()) {
-            binding.menuSuppliers.error = "Tedarikçi seçilmedi"
+        // Kategori kontrolü
+        if (binding.spinnerCategory.text.isNullOrBlank()) {
+            binding.spinnerCategory.error = "Kategori seçilmedi"
             isValid = false
         }
 
@@ -202,9 +195,8 @@ class ProductDialogFragment : DialogFragment() {
 
     private fun getCategoryIdFromSelection(): Int? {
         return try {
-            val selection = binding.menuCategories.text.toString()
-            if (selection.isBlank()) return null
-            selection.split(" - ").firstOrNull()?.toIntOrNull()
+            val selectedCategory = binding.spinnerCategory.text.toString()
+            categoryAdapter.categories.find { it.name == selectedCategory }?.categoryId
         } catch (e: Exception) {
             Timber.e(e, "Kategori ID alınırken hata")
             null

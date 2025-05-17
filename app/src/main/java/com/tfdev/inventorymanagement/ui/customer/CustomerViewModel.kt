@@ -27,7 +27,7 @@ class CustomerViewModel(application: Application) : AndroidViewModel(application
     private var editingCustomer: Customer? = null
 
     init {
-        val database = AppDatabase.getDatabase(application)
+        val database = AppDatabase.getInstance(application)
         customerDao = database.customerDao()
         loadCustomers()
     }
